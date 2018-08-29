@@ -80,18 +80,19 @@ def predictDefault(ID, Income, AppliedOnline, Residence, YearCurrentAddress,
 		YearsCurrentEmployer, NumberOfCards, CCDebt, Loans, LoanAmount, SalePrice, Location):
 	
 	service_path = 'https://ibm-watson-ml.mybluemix.net'
-	username = '37a6c710-9576-456e-a8be-5cf859ccb7e9'
-	password = '9eb88d5d-6e5e-4e85-b089-2e6c5ab579b3'
+	username = '14b04752-d15f-4adb-bec3-e77c219f44af'
+	password = 'ef7e284a-5e47-4080-8b35-4af1181bec36'
 
 	headers = urllib3.util.make_headers(basic_auth='{}:{}'.format(username, password))
 	url = '{}/v2/identity/token'.format(service_path)
 	response = requests.get(url, headers=headers)
 	mltoken = json.loads(response.text).get('token')
-	header_online = {'Content-Type': 'application/json', 'Authorization': mltoken}
-	scoring_href = "https://ibm-watson-ml.mybluemix.net/32768/v2/scoring/2264"
-	payload_scoring = ({"record":[ID, Income, AppliedOnline, Residence, YearCurrentAddress,
-		YearsCurrentEmployer, NumberOfCards, CCDebt, Loans, LoanAmount, SalePrice, Location]})
-	response_scoring = requests.put(scoring_href, json=payload_scoring, headers=header_online)
+	header_online = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + mltoken}
+	scoring_href = "https://us-south.ml.cloud.ibm.com/v3/wml_instances/b6b4eb82-4d09-413a-9247-ee3cda31d56b/deployments/39cc42cd-a41f-492b-a07c-2258d56a7a24/online"
+	payload_scoring = ({"fields": ["ID","Income","AppliedOnline","Residence","YearCurrentAddress","YearsCurrentEmployer","NumberOfCards","CCDebt","Loans","LoanAmount","SalePrice","Location"],
+    "values": [[ID, Income, AppliedOnline, Residence, YearCurrentAddress,
+		YearsCurrentEmployer, NumberOfCards, CCDebt, Loans, LoanAmount, SalePrice, Location]]})
+	response_scoring = requests.post(scoring_href, json=payload_scoring, headers=header_online)
 	
 	result = response_scoring.text
 	return response_scoring
@@ -159,8 +160,8 @@ def index():
 		response_scoring = predictDefault(ID, Income, AppliedOnline, Residence, YearCurrentAddress,
 		   YearsCurrentEmployer, NumberOfCards, CCDebt, Loans, LoanAmount, SalePrice, Location)
 
-		prediction = response_scoring.json()["result"]["prediction"]
-		probability = response_scoring.json()["result"]["probability"]["values"][0]
+		prediction = response_scoring.json()['values'][0][19]
+		probability = response_scoring.json()['values'][0][18][0]
 
 		session['prediction'] = prediction
 		session['probability'] = probability

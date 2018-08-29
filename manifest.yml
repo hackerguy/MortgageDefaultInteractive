@@ -6,6 +6,4 @@ applications:
   name: MortgageDefaultInteractive
   host: MortgageDefaultInteractive
   disk_quota: 1024M
-  services:
-  - availability-monitoring-auto
   buildpack: python_buildpack
